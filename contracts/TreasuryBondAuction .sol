@@ -9,21 +9,22 @@ contract TreasuryBondAuction {
     struct Bid {
         address bidder;
         uint yield; // Yield of the bid
-        uint notional; // Notional amount of the bid
-        uint amount; // amount in wei
+        uint notional; // Notional amount of the bid        
         bool withdrawn; // flag indicating if the bid has been withdrawn
     }
 
     // Structure to represent a winner
     struct Winner {
         address bidder;
-        uint amount; // amount in wei
+        uint amount; // amount in usd
+        Bid bid;
     }
 
     address public auctioneer;
     uint public auctionEndTime;
     uint public minimumBid;
     address public bondToken; // ERC20 bond token address
+    BondToken private  newBond;
     uint public bondPrice; // Price of one bond in wei
 
     Bid[] private bids;
@@ -40,12 +41,13 @@ contract TreasuryBondAuction {
         uint _minimumBid,
         string memory _bondName,
         string memory _bondSymbol,
-        uint256 _bondTotalSupply
+        uint256 _bondTotalSupply,
+        uint256 _bondMaturityInYears
     ) {
         auctioneer = msg.sender;
         auctionEndTime = block.timestamp + _auctionDuration;
         minimumBid = _minimumBid;
-        BondToken newBond = new BondToken(_bondName, _bondSymbol, _bondTotalSupply);
+        newBond = new BondToken(_bondName, _bondSymbol, _bondTotalSupply,_bondMaturityInYears);
         bondToken = address(newBond);
         bondPrice = 1 ether; // default bond price
     }
@@ -66,7 +68,6 @@ contract TreasuryBondAuction {
             bidder: msg.sender,
             yield: _yield,
             notional: _notional,
-            amount: msg.value,
             withdrawn: false
         }));
 
@@ -79,35 +80,42 @@ contract TreasuryBondAuction {
         require(bids.length > 0, "No bids were placed");
 
         // Sort bids by amount (descending)
-        sortBids();
+        sortBidsByYield();
 
-        // Withdraw funds and transfer bonds to the winners
-        for (uint i = 0; i < 3 && i < bids.length; i++) {
-            // Withdraw funds
+       
+        for (uint i = 0; i < bids.length; i++) {
+
+            
+           
+            // Store winner
+            winningBids[i] = Winner({
+                bidder: bids[i].bidder,
+                amount: bids[i].notional,
+                bid: bids[i]
+            });
+
+
+             // Withdraw funds
             if (!bids[i].withdrawn) {
-                payable(bids[i].bidder).transfer(bids[i].amount);
+                payable(bids[i].bidder).transfer(bids[i].notional);
                 bids[i].withdrawn = true;
-                emit Withdrawal(bids[i].bidder, bids[i].amount);
+                emit Withdrawal(bids[i].bidder, bids[i].notional);
             }
 
             // Transfer bonds
             BondToken(bondToken).transfer(bids[i].bidder, bids[i].notional);
-
-            // Store winner
-            winningBids[i] = Winner({
-                bidder: bids[i].bidder,
-                amount: bids[i].amount
-            });
         }
+
+         // Withdraw funds and transfer bonds to the winners
 
         emit AuctionEnded(winningBids);
     }
 
     // Function to sort bids by amount (descending)
-    function sortBids() internal {
+    function sortBidsByYield() internal {
         for (uint i = 0; i < bids.length; i++) {
             for (uint j = i + 1; j < bids.length; j++) {
-                if (bids[i].amount < bids[j].amount) {
+                if (bids[i].yield > bids[j].yield) {
                     Bid memory temp = bids[i];
                     bids[i] = bids[j];
                     bids[j] = temp;

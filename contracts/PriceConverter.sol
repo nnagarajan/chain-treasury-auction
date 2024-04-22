@@ -19,8 +19,8 @@ import {AggregatorV3Interface} from "@chainlink/contracts@1.0.0/src/v0.8/shared/
  * page for details.
  */
 
-contract DataConsumerV3 {
-    AggregatorV3Interface internal dataFeed;
+contract PriceConverter {
+    AggregatorV3Interface internal priceFeed;
 
     /**
      * Network: Sepolia
@@ -28,7 +28,7 @@ contract DataConsumerV3 {
      * Address: 0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43
      */
     constructor() {
-        dataFeed = AggregatorV3Interface(
+        priceFeed = AggregatorV3Interface(
             0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43
         );
     }
@@ -36,7 +36,7 @@ contract DataConsumerV3 {
     /**
      * Returns the latest answer.
      */
-    function getChainlinkDataFeedLatestAnswer() public view returns (int) {
+    function getPrice() public view returns (uint256) {
         // prettier-ignore
         (
             /* uint80 roundID */,
@@ -44,7 +44,18 @@ contract DataConsumerV3 {
             /*uint startedAt*/,
             /*uint timeStamp*/,
             /*uint80 answeredInRound*/
-        ) = dataFeed.latestRoundData();
-        return answer;
+        ) = priceFeed.latestRoundData();
+        return uint256(answer * 1e10);
     }
+
+    function getVersion() internal view returns(uint256){
+        return priceFeed.version();
+    }
+
+    function getConversionRate(uint256 ethAmount) internal view returns(uint256){
+        uint256 ethPrice = getPrice();
+        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18;
+        return ethAmountInUsd;
+    }
+
 }

@@ -16,6 +16,8 @@ contract BondToken is IERC20 {
     string public symbol;
     uint8 public decimals;
     uint256 public totalSupply;
+    uint public couponRate;
+    uint public maturityInYears;
 
     mapping(address => uint256) private balances;
     mapping(address => mapping(address => uint256)) private allowed;
@@ -23,10 +25,12 @@ contract BondToken is IERC20 {
     constructor(
         string memory _name,
         string memory _symbol,
+        uint _maturityInYears,
         uint256 _totalSupply
     ) {
         name = _name;
         symbol = _symbol;
+        maturityInYears = _maturityInYears;
         decimals = 18; // Assuming standard 18 decimal places for ERC20 tokens
         totalSupply = _totalSupply;
         balances[msg.sender] = _totalSupply;
@@ -86,4 +90,10 @@ contract BondToken is IERC20 {
         allowed[owner][spender] = amount;
         emit Approval(owner, spender, amount);
     }
+
+    function derivedPrice(uint bidYield) external view returns (uint){
+            uint derivedBondPrice = couponRate/bidYield * 100 + (1 - 1/(1+bidYield)^maturityInYears) + 100 / (1+bidYield)^maturityInYears;
+            return  derivedBondPrice;
+    }
+
 }
