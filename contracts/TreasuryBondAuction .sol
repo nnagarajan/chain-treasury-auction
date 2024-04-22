@@ -79,14 +79,12 @@ contract TreasuryBondAuction {
         require(block.timestamp >= auctionEndTime, "Auction is still ongoing");
         require(bids.length > 0, "No bids were placed");
 
-        // Sort bids by amount (descending)
+        // Sort bids by amount (ascending)
         sortBidsByYield();
 
        
         for (uint i = 0; i < bids.length; i++) {
 
-            
-           
             // Store winner
             winningBids[i] = Winner({
                 bidder: bids[i].bidder,
