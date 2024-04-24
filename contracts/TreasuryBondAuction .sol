@@ -16,8 +16,9 @@ contract TreasuryBondAuction {
     // Structure to represent a winner
     struct Winner {
         address bidder;
-        uint amount; // amount in usd
+        uint qty; // amount in usd
         Bid bid;
+        uint256 price;
     }
 
     address public auctioneer;
@@ -26,6 +27,7 @@ contract TreasuryBondAuction {
     address public bondToken; // ERC20 bond token address
     BondToken private  newBond;
     uint public bondPrice; // Price of one bond in wei
+    uint256 ETH_USD_PRICE = 32712;
 
     Bid[] private bids;
     Winner[] public winningBids;
@@ -79,37 +81,60 @@ contract TreasuryBondAuction {
         require(block.timestamp >= auctionEndTime, "Auction is still ongoing");
         require(bids.length > 0, "No bids were placed");
 
-        // Sort bids by amount (ascending)
+        // Sort bids by Yield (ascending)
         sortBidsByYield();
 
-       
-        for (uint i = 0; i < bids.length; i++) {
-
-            // Store winner
-            winningBids[i] = Winner({
-                bidder: bids[i].bidder,
-                amount: bids[i].notional,
-                bid: bids[i]
-            });
-
-
-             // Withdraw funds
-            if (!bids[i].withdrawn) {
-                payable(bids[i].bidder).transfer(bids[i].notional);
-                bids[i].withdrawn = true;
-                emit Withdrawal(bids[i].bidder, bids[i].notional);
+        uint256 totalNotional = newBond.totalSupply();
+        uint256 totalAllocated = 0;
+        uint256 totalAllocatedIter = 0;
+        uint256 couponRate=0;
+        for (uint i = 0; i < bids.length; i++) {        
+            if(totalNotional - (totalAllocated + bids[i].notional)  >= 0){
+                // Store winner
+                winningBids[i] = Winner({
+                    bidder: bids[i].bidder,
+                    qty: bids[i].notional,
+                    bid: bids[i],
+                    price: 0
+                });
+                totalAllocatedIter = bids[i].notional;
+            } else {
+                totalAllocatedIter = totalNotional - totalAllocated;
+                winningBids[i] = Winner({
+                    bidder: bids[i].bidder,
+                    qty: totalAllocatedIter,
+                    bid: bids[i],
+                    price: 0
+                });
             }
-
-            // Transfer bonds
-            BondToken(bondToken).transfer(bids[i].bidder, bids[i].notional);
+            
+            totalAllocated = totalAllocated + totalAllocatedIter;
+                      
+            if(totalAllocated==totalNotional){
+                couponRate = bids[i].yield ;
+                newBond.setCouponRate(couponRate);
+                break;
+            }
+           
         }
 
-         // Withdraw funds and transfer bonds to the winners
+        for (uint i = 0; i < winningBids.length; i++) {    
+                winningBids[i].price = newBond.derivedPrice(winningBids[i].bid.yield);
+                // Withdraw funds
+                if (!winningBids[i].bid.withdrawn) {
+                    uint256 settlementAmount = (winningBids[i].qty * winningBids[i].price)/ETH_USD_PRICE;                    
+                    payable(winningBids[i].bid.bidder).transfer(settlementAmount);
+                    bids[i].withdrawn = true;
+                    emit Withdrawal(winningBids[i].bid.bidder, settlementAmount);
+                }
+                // Transfer bonds
+                BondToken(bondToken).transfer(winningBids[i].bid.bidder, winningBids[i].qty);                
+        }
 
         emit AuctionEnded(winningBids);
     }
 
-    // Function to sort bids by amount (descending)
+    // Function to sort bids by yield (asc)
     function sortBidsByYield() internal {
         for (uint i = 0; i < bids.length; i++) {
             for (uint j = i + 1; j < bids.length; j++) {

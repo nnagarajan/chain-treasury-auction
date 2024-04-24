@@ -16,7 +16,7 @@ contract BondToken is IERC20 {
     string public symbol;
     uint8 public decimals;
     uint256 public totalSupply;
-    uint public couponRate;
+    uint256 public couponRate;
     uint public maturityInYears;
 
     mapping(address => uint256) private balances;
@@ -35,6 +35,7 @@ contract BondToken is IERC20 {
         totalSupply = _totalSupply;
         balances[msg.sender] = _totalSupply;
     }
+    
 
     function transfer(address recipient, uint256 amount) external returns (bool) {
         require(recipient != address(0), "ERC20: transfer to the zero address");
@@ -94,6 +95,10 @@ contract BondToken is IERC20 {
     function derivedPrice(uint bidYield) external view returns (uint){
             uint derivedBondPrice = couponRate/bidYield * 100 + (1 - 1/(1+bidYield)^maturityInYears) + 100 / (1+bidYield)^maturityInYears;
             return  derivedBondPrice;
+    }
+
+    function setCouponRate(uint256 rate) external  {
+            couponRate = rate;
     }
 
 }
