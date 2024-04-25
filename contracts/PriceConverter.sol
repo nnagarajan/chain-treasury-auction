@@ -58,10 +58,10 @@ contract PriceConverter {
         return ethAmountInUsd;
     }
 
-    function getConversionRateEth(uint256 ethAmount) public view returns(uint256){
-        uint256 ethPrice = getPrice();
-        uint256 amountInEth = (ethAmount/ethPrice) / 1e18;
-        return amountInEth;
+    function getConversionRateWei(uint256 usdAmount) public view returns(uint256){
+        uint256 ethPrice = getConversionRate(1);
+        uint256 amountInWei = (usdAmount/ethPrice) * 1e18;
+        return amountInWei;
     }
 
 }

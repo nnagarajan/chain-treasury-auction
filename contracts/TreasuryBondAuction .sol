@@ -3,6 +3,7 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import './BondToken.sol';
+import './PriceConverter.sol';
 
 contract TreasuryBondAuction {
     // Structure to represent a bid
@@ -28,6 +29,7 @@ contract TreasuryBondAuction {
     BondToken private  newBond;
     uint public bondPrice; // Price of one bond in wei
     uint256 ETH_USD_PRICE = 3271;
+    PriceConverter private priceConverter;
 
     Bid[] private bids;
     Winner[] public winningBids;
@@ -52,6 +54,7 @@ contract TreasuryBondAuction {
         newBond = new BondToken(_bondName, _bondSymbol, _bondTotalSupply,_bondMaturityInYears);
         bondToken = address(newBond);
         bondPrice = 1 ether; // default bond price
+        priceConverter = new PriceConverter();
     }
 
     // Modifier to restrict access to the auctioneer
@@ -122,7 +125,7 @@ contract TreasuryBondAuction {
                 winningBids[i].price = newBond.derivedPrice(winningBids[i].bid.yield);
                 // Withdraw funds
                 if (!winningBids[i].bid.withdrawn) {
-                    uint256 settlementAmount = (winningBids[i].qty * winningBids[i].price)/ETH_USD_PRICE;                    
+                    uint256 settlementAmount = priceConverter.getConversionRateWei(winningBids[i].qty * winningBids[i].price);                   
                     payable(winningBids[i].bid.bidder).transfer(settlementAmount);
                     bids[i].withdrawn = true;
                     emit Withdrawal(winningBids[i].bid.bidder, settlementAmount);
