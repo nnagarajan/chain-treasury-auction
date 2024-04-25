@@ -27,7 +27,7 @@ contract TreasuryBondAuction {
     address public bondToken; // ERC20 bond token address
     BondToken private  newBond;
     uint public bondPrice; // Price of one bond in wei
-    uint256 ETH_USD_PRICE = 32712;
+    uint256 ETH_USD_PRICE = 3271;
 
     Bid[] private bids;
     Winner[] public winningBids;
@@ -146,4 +146,5 @@ contract TreasuryBondAuction {
             }
         }
     }
+
 }
