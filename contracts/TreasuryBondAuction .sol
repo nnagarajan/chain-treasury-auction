@@ -4,6 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 
 import './BondToken.sol';
 import './PriceConverter.sol';
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract TreasuryBondAuction {
     // Structure to represent a bid
@@ -31,8 +32,8 @@ contract TreasuryBondAuction {
     uint256 ETH_USD_PRICE = 3271;
     PriceConverter private priceConverter;
 
-    Bid[] private bids;
-    Winner[] public winningBids;
+    Bid[]  private  bids;
+    Winner[] private winningBids;
 
     // Events to emit upon various actions
     event BidPlaced(address indexed bidder, uint yield, uint notional, uint amount);
@@ -63,11 +64,21 @@ contract TreasuryBondAuction {
         _;
     }
 
+    function allBids() public view onlyAuctioneer returns(Bid[] memory){
+        return bids;
+    }
+
+    function allWinningBids() public view onlyAuctioneer returns(Winner[] memory){
+        return winningBids;
+    }
+
     // Function to place a bid with yield and notional parameters
     function placeBid(uint _yield, uint _notional) public payable {
         require(block.timestamp < auctionEndTime, "Auction has ended");
-        require(msg.value >= minimumBid, "Bid amount is below minimum");
-
+        require(_notional >= minimumBid, string.concat("Bid amount ", Strings.toString(_notional) ," is below minimum " , Strings.toString(minimumBid)));
+        require(msg.sender != auctioneer, "Only non-auctioneer can perform this action");
+        
+        
         // Store the bid
         bids.push(Bid({
             bidder: msg.sender,
@@ -83,6 +94,7 @@ contract TreasuryBondAuction {
     function endAuction() public onlyAuctioneer {
         require(block.timestamp >= auctionEndTime, "Auction is still ongoing");
         require(bids.length > 0, "No bids were placed");
+        
 
         // Sort bids by Yield (ascending)
         sortBidsByYield();
@@ -121,6 +133,9 @@ contract TreasuryBondAuction {
            
         }
 
+        require(totalAllocated==totalNotional, "Not enough allocation made");
+        
+
         for (uint i = 0; i < winningBids.length; i++) {    
                 winningBids[i].price = newBond.derivedPrice(winningBids[i].bid.yield);
                 // Withdraw funds
@@ -148,6 +163,14 @@ contract TreasuryBondAuction {
                 }
             }
         }
+    }
+
+     function totalBidReceived() public view returns(uint256) {
+        uint totalReceived = 0;
+        for (uint i = 0; i < bids.length; i++) {
+            totalReceived = totalReceived + bids[i].notional;
+        }
+        return totalReceived;
     }
 
 }
