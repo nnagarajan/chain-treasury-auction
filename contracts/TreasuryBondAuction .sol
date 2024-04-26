@@ -165,7 +165,7 @@ contract TreasuryBondAuction {
         }
     }
 
-     function totalBidReceived() public view returns(uint256) {
+    function totalBidsReceived() public view returns(uint256) {
         uint totalReceived = 0;
         for (uint i = 0; i < bids.length; i++) {
             totalReceived = totalReceived + bids[i].notional;
