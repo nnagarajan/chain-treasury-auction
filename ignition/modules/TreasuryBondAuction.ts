@@ -1,26 +1,32 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import hre from "hardhat";
 
-const JAN_1ST_2030 = 1893456000;
-const ONE_GWEI: bigint = 1_000_000_000n;
+const AUCTION_DURATION = 1000;
 
-const LockModule = buildModule("TreasuryBondAuction", (m) => {
-  const auctionDuration = m.getParameter("_auctionDuration", 1000);
+const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
+  const auctionDuration = m.getParameter("_auctionDuration", AUCTION_DURATION);
   const minimumBid = m.getParameter("_minimumBid", 1);
   const bondName = m.getParameter("_bondName", "TREAS1");
-  const bondName = m.getParameter("_bondName", "TREAS1");
+  const bondTotalSupply = m.getParameter("_bondTotalSupply", 100);
+  const bondMaturityInYears = m.getParameter("_bondMaturityInYears", 10);
+  const chainId = hre.network.config.chainId;
 
-  const lock = m.contract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const DECIMALS = "18";
+  const INITIAL_PRICE = "2000000000000000000000"; // 2000
 
-  return { lock };
+  if (chainId == 31337) {
+    m.contract("MockV3Aggregator", [DECIMALS, INITIAL_PRICE]);
+  }
+
+  const treasuryBondAuction = m.contract("TreasuryBondAuction", [
+    auctionDuration,
+    minimumBid,
+    bondName,
+    bondTotalSupply,
+    bondMaturityInYears,
+  ]);
+
+  return { treasuryBondAuction };
 });
 
-export default LockModule;
-
-uint _auctionDuration,
-uint _minimumBid,
-string memory _bondName,
-string memory _bondSymbol,
-uint256 _bondTotalSupply,
-uint256 _bondMaturityInYears
+export default TreasuryBondAuctionModule;
