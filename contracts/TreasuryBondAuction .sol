@@ -33,17 +33,13 @@ contract TreasuryBondAuction {
     uint public bondPrice; // Price of one bond in wei
     uint256 ETH_USD_PRICE = 3271;
     PriceConverter private priceConverter;
+    mapping(address => uint256) public fundsByBidder;
 
     Bid[] private bids;
     Winner[] private winningBids;
 
     // Events to emit upon various actions
-    event BidPlaced(
-        address indexed bidder,
-        uint yield,
-        uint notional,
-        uint amount
-    );
+    event BidPlaced(address indexed bidder, uint yield, uint notional, uint amount);
     event AuctionEnded(Winner[] winners);
     event Withdrawal(address indexed bidder, uint amount);
 
@@ -59,12 +55,7 @@ contract TreasuryBondAuction {
         auctioneer = msg.sender;
         auctionEndTime = block.timestamp + _auctionDuration;
         minimumBid = _minimumBid;
-        newBond = new BondToken(
-            _bondName,
-            _bondName,
-            _bondMaturityInYears,
-            _bondTotalSupply
-        );
+        newBond = new BondToken(_bondName, _bondName, _bondMaturityInYears, _bondTotalSupply);
         bondToken = address(newBond);
         bondPrice = 1 ether; // default bond price
         priceConverter = new PriceConverter(AggregatorV3Interface(priceFeed));
@@ -72,10 +63,7 @@ contract TreasuryBondAuction {
 
     // Modifier to restrict access to the auctioneer
     modifier onlyAuctioneer() {
-        require(
-            msg.sender == auctioneer,
-            "Only auctioneer can perform this action"
-        );
+        require(msg.sender == auctioneer, "Only auctioneer can perform this action");
         _;
     }
 
@@ -83,18 +71,16 @@ contract TreasuryBondAuction {
         return bids;
     }
 
-    function allWinningBids()
-        public
-        view
-        onlyAuctioneer
-        returns (Winner[] memory)
-    {
+    function allWinningBids() public view onlyAuctioneer returns (Winner[] memory) {
         return winningBids;
     }
 
     // Function to place a bid with yield and notional parameters
     function placeBid(uint _yield, uint _notional) public payable {
         require(block.timestamp < auctionEndTime, "Auction has ended");
+
+        fundsByBidder[msg.sender] = msg.value;
+
         require(
             _notional >= minimumBid,
             string.concat(
@@ -104,29 +90,40 @@ contract TreasuryBondAuction {
                 Strings.toString(minimumBid)
             )
         );
+
+        require(msg.sender != auctioneer, "Only non-auctioneer can perform this action");
+
+        uint256 ethValueOfNotional = priceConverter.getConversionRateWei(_notional * 150) / 100;
+
+        console.log(
+            string.concat(
+                "Bid amount in Wei",
+                Strings.toString(ethValueOfNotional),
+                " transferred in Wei",
+                Strings.toString(msg.value)
+            )
+        );
+
         require(
-            msg.sender != auctioneer,
-            "Only non-auctioneer can perform this action"
+            msg.value > 0 && msg.value >= ethValueOfNotional,
+            string.concat(
+                "Bid amount should be atleast",
+                Strings.toString(ethValueOfNotional),
+                " transferred ",
+                Strings.toString(msg.value)
+            )
         );
 
         // Store the bid
-        bids.push(
-            Bid({
-                bidder: msg.sender,
-                yield: _yield,
-                notional: _notional,
-                withdrawn: false
-            })
-        );
+        bids.push(Bid({bidder: msg.sender, yield: _yield, notional: _notional, withdrawn: false}));
 
         emit BidPlaced(msg.sender, _yield, _notional, msg.value);
     }
 
     // Function to end the auction and determine the winners
-    function endAuction() public payable onlyAuctioneer {
+    function endAuction() public onlyAuctioneer {
         require(
-            block.timestamp >= auctionEndTime ||
-                totalBidsReceived() > newBond.totalSupply(),
+            block.timestamp >= auctionEndTime || totalBidsReceived() > newBond.totalSupply(),
             "Auction is still ongoing"
         );
         require(bids.length > 0, "No bids were placed");
@@ -138,45 +135,24 @@ contract TreasuryBondAuction {
         uint256 couponRate = 0;
         for (uint i = 0; i < bids.length; i++) {
             uint256 currentAllocation = 0;
-            console.log("trace 111");
-            if (
-                int256(totalNotional) -
-                    int256(totalAllocated) -
-                    int256(bids[i].notional) >=
-                0
-            ) {
-                console.log("trace 2222");
+            if (int256(totalNotional) - int256(totalAllocated) - int256(bids[i].notional) >= 0) {
                 currentAllocation = bids[i].notional;
                 console.log(
                     string.concat(
                         "iter ",
                         Strings.toString(i),
-                        " ",
-                        Strings.toString(currentAllocation)
+                        " currentAllocation ",
+                        Strings.toString(currentAllocation),
+                        " Yield ",
+                        Strings.toString(bids[i].yield)
                     )
                 );
                 // Store winner
                 winningBids.push(
-                    Winner({
-                        bidder: bids[i].bidder,
-                        qty: bids[i].notional,
-                        bid: bids[i],
-                        price: 0,
-                        settlementAmount: 0
-                    })
+                    Winner({bidder: bids[i].bidder, qty: bids[i].notional, bid: bids[i], price: 0, settlementAmount: 0})
                 );
-                console.log("trace 2222343");
             } else {
-                console.log("trace 3333");
                 currentAllocation = totalNotional - totalAllocated;
-                console.log(
-                    string.concat(
-                        "iter ",
-                        Strings.toString(i),
-                        " ",
-                        Strings.toString(currentAllocation)
-                    )
-                );
                 winningBids.push(
                     Winner({
                         bidder: bids[i].bidder,
@@ -189,45 +165,55 @@ contract TreasuryBondAuction {
             }
 
             totalAllocated = totalAllocated + currentAllocation;
-            console.log("trace 1");
             if (totalAllocated == totalNotional) {
                 couponRate = bids[i].yield;
                 newBond.setCouponRate(couponRate);
                 break;
             }
-            console.log("trace 2");
         }
 
         require(totalAllocated == totalNotional, "Not enough allocation made");
-        console.log("trace 3");
-        console.log(newBond.couponRate());
+        console.log(string.concat("Applied Coupon Rate : ", Strings.toString(newBond.couponRate())));
 
         for (uint i = 0; i < winningBids.length; i++) {
-            console.log("trace 3");
-            winningBids[i].price = newBond.derivedPrice(
-                winningBids[i].bid.yield
+            winningBids[i].price = newBond.derivedPrice(winningBids[i].bid.yield);
+            console.log(
+                string.concat(
+                    "Winning Bid at winnerIndex : ",
+                    Strings.toString(i),
+                    " price ",
+                    Strings.toString(winningBids[i].price)
+                )
             );
             // Withdraw funds
             if (!winningBids[i].bid.withdrawn) {
-                console.log("trace 5");
-                //uint256 settlementAmount = priceConverter.getConversionRateWei(winningBids[i].qty * winningBids[i].price);
-                uint256 settlementAmount = (winningBids[i].qty *
-                    winningBids[i].price *
-                    1e10) / ETH_USD_PRICE;
+                uint256 settlementAmount = priceConverter.getConversionRateWei(
+                    winningBids[i].qty * winningBids[i].price
+                ) / 100;
+                //uint256 settlementAmount = (winningBids[i].qty * winningBids[i].price);
                 winningBids[i].settlementAmount = settlementAmount;
-                settlementAmount = 1 wei;
-                console.log("trace 6");
-                payable(winningBids[i].bid.bidder).transfer(settlementAmount);
+                console.log(
+                    string.concat(
+                        "SettlementAmount at winnerIndex : ",
+                        Strings.toString(i),
+                        " settlementAmount ",
+                        Strings.toString(settlementAmount)
+                    )
+                );
+                uint256 extraAmountInWei = fundsByBidder[winningBids[i].bid.bidder] - settlementAmount;
+                if (extraAmountInWei > 0) payable(winningBids[i].bid.bidder).transfer(extraAmountInWei);
                 bids[i].withdrawn = true;
-                console.log("trace 7");
                 emit Withdrawal(winningBids[i].bid.bidder, settlementAmount);
             }
-            console.log("trace 8");
             // Transfer bonds
-            BondToken(bondToken).transfer(
-                winningBids[i].bid.bidder,
-                winningBids[i].qty
-            );
+            BondToken(bondToken).transfer(winningBids[i].bid.bidder, winningBids[i].qty);
+        }
+
+        //Return bid amount to losing bidders
+        for (uint i = 0; i < bids.length; i++) {
+            if (!bids[i].withdrawn) {
+                payable(bids[i].bidder).transfer(fundsByBidder[bids[i].bidder]);
+            }
         }
 
         emit AuctionEnded(winningBids);

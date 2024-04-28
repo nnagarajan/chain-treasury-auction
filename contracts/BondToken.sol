@@ -3,6 +3,9 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
 // // ERC20 Interface
 // interface IERC20 {
@@ -22,12 +25,7 @@ contract BondToken is IERC20 {
     mapping(address => uint256) private balances;
     mapping(address => mapping(address => uint256)) private allowed;
 
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        uint _maturityInYears,
-        uint256 _totalSupply
-    ) {
+    constructor(string memory _name, string memory _symbol, uint _maturityInYears, uint256 _totalSupply) {
         name = _name;
         symbol = _symbol;
         maturityInYears = _maturityInYears;
@@ -35,7 +33,6 @@ contract BondToken is IERC20 {
         totalSupply = _totalSupply;
         balances[msg.sender] = _totalSupply;
     }
-    
 
     function transfer(address recipient, uint256 amount) external returns (bool) {
         require(recipient != address(0), "ERC20: transfer to the zero address");
@@ -92,13 +89,15 @@ contract BondToken is IERC20 {
         emit Approval(owner, spender, amount);
     }
 
-    function derivedPrice(uint bidYield) external view returns (uint){
-            uint derivedBondPrice = couponRate/bidYield * 100 + (1 - 1/(1+bidYield)^maturityInYears) + 100 / (1+bidYield)^maturityInYears;
-            return  derivedBondPrice;
+    function derivedPrice(uint bidYield) external view returns (uint) {
+        uint256 r = (100 + bidYield) ** maturityInYears;
+        uint derivedBondPrice = ((couponRate * 100) / bidYield) * 100 * (10000 - (1e24 / r)) + 1e28 / r;
+        derivedBondPrice = derivedBondPrice / 1e6;
+        console.log(string.concat("Derived Bond Price ", Strings.toString(derivedBondPrice)));
+        return derivedBondPrice;
     }
 
-    function setCouponRate(uint256 rate) external  {
-            couponRate = rate;
+    function setCouponRate(uint256 rate) external {
+        couponRate = rate;
     }
-
 }

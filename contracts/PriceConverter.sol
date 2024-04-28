@@ -2,6 +2,9 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
+import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED
@@ -50,19 +53,21 @@ contract PriceConverter {
         return priceFeed.version();
     }
 
-    function getConversionRate(
-        uint256 ethAmount
-    ) public view returns (uint256) {
+    function getConversionRate(uint256 ethAmount) public view returns (uint256) {
         uint256 ethPrice = getPrice();
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18;
         return ethAmountInUsd;
     }
 
-    function getConversionRateWei(
-        uint256 usdAmount
-    ) public view returns (uint256) {
+    function getConversionRateWei(uint256 usdAmount) public view returns (uint256) {
         uint256 ethPrice = getConversionRate(1);
-        uint256 amountInWei = (usdAmount / ethPrice) * 1e18;
+        uint256 amountInWei = Math.ceilDiv(usdAmount * 1e18, ethPrice);
+        return amountInWei;
+    }
+
+    function getConversionRateEth(uint256 usdAmount) public view returns (uint256) {
+        uint256 ethPrice = getConversionRate(1);
+        uint256 amountInWei = (usdAmount * 1e18) / ethPrice;
         return amountInWei;
     }
 }
