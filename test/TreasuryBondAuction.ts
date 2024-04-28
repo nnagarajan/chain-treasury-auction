@@ -1,8 +1,4 @@
-import {
-  time,
-  loadFixture,
-} from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
@@ -22,7 +18,6 @@ describe("TreasuryBondAuction", function () {
     const { treasuryBondAuction } = await hre.ignition.deploy(
       TreasuryBondAuction
     );
-
     const [tokenOwner, otherAccount] = await hre.ethers.getSigners();
 
     return { treasuryBondAuction, tokenOwner, otherAccount };
@@ -32,7 +27,6 @@ describe("TreasuryBondAuction", function () {
     it("Should set the right totalBidsReceived", async function () {
       const { treasuryBondAuction, tokenOwner, otherAccount } =
         await loadFixture(deployTokenFixture);
-
       await treasuryBondAuction.connect(otherAccount).placeBid(8, 50);
       expect(await treasuryBondAuction.totalBidsReceived()).to.equal(50);
     });
@@ -47,6 +41,20 @@ describe("TreasuryBondAuction", function () {
       await treasuryBondAuction.connect(otherAccount).placeBid(5, 100);
       await treasuryBondAuction.connect(otherAccount).placeBid(9, 50);
       expect(await treasuryBondAuction.totalBidsReceived()).to.equal(200);
+    });
+  });
+
+  describe("Complete the bid", function () {
+    it("Should set the right totalBidsReceived", async function () {
+      const { treasuryBondAuction, tokenOwner, otherAccount } =
+        await loadFixture(deployTokenFixture);
+
+      await treasuryBondAuction.connect(otherAccount).placeBid(8, 50);
+      await treasuryBondAuction.connect(otherAccount).placeBid(5, 100);
+      await treasuryBondAuction.connect(otherAccount).placeBid(9, 50);
+      expect(await treasuryBondAuction.totalBidsReceived()).to.equal(200);
+
+      await treasuryBondAuction.endAuction();
     });
   });
 });

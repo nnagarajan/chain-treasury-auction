@@ -1,5 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import hre from "hardhat";
+import { networkConfig, developmentChains } from "../../helper-hardhat-config";
 
 const AUCTION_DURATION = 1000;
 
@@ -13,9 +14,14 @@ const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
 
   const DECIMALS = "18";
   const INITIAL_PRICE = "2000000000000000000000"; // 2000
-
+  let mockV3AggregatorContract;
   if (chainId == 31337) {
-    m.contract("MockV3Aggregator", [DECIMALS, INITIAL_PRICE]);
+    mockV3AggregatorContract = m.contract("MockV3Aggregator", [
+      DECIMALS,
+      INITIAL_PRICE,
+    ]);
+  } else {
+    mockV3AggregatorContract = networkConfig[hre.network.name].ethUsdPriceFeed!;
   }
 
   const treasuryBondAuction = m.contract("TreasuryBondAuction", [
@@ -24,6 +30,7 @@ const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
     bondName,
     bondTotalSupply,
     bondMaturityInYears,
+    mockV3AggregatorContract,
   ]);
 
   return { treasuryBondAuction };

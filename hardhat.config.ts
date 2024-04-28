@@ -5,9 +5,11 @@ import "@nomiclabs/hardhat-solhint";
 import "hardhat-deploy";
 import "solidity-coverage";
 import "dotenv/config";
+import "@nomicfoundation/hardhat-ethers";
 
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || "";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const PRIVATE_KEY_2 = process.env.PRIVATE_KEY_2 || "";
 const MNEMONIC = process.env.MNEMONIC || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "";
@@ -24,7 +26,7 @@ const config: HardhatUserConfig = {
     },
     sepolia: {
       url: SEPOLIA_RPC_URL,
-      accounts: [PRIVATE_KEY],
+      accounts: [PRIVATE_KEY, PRIVATE_KEY_2],
       chainId: 11155111,
     },
   },

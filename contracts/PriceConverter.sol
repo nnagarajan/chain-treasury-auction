@@ -27,10 +27,8 @@ contract PriceConverter {
      * Aggregator: BTC/USD
      * Address: 0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43
      */
-    constructor() {
-        priceFeed = AggregatorV3Interface(
-            0x694AA1769357215DE4FAC081bf1f309aDC325306
-        );
+    constructor(AggregatorV3Interface _priceFeed) {
+        priceFeed = _priceFeed;
     }
 
     /**
@@ -48,20 +46,23 @@ contract PriceConverter {
         return uint256(answer * 1e10);
     }
 
-    function getVersion() internal view returns(uint256){
+    function getVersion() internal view returns (uint256) {
         return priceFeed.version();
     }
 
-    function getConversionRate(uint256 ethAmount) public view returns(uint256){
+    function getConversionRate(
+        uint256 ethAmount
+    ) public view returns (uint256) {
         uint256 ethPrice = getPrice();
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18;
         return ethAmountInUsd;
     }
 
-    function getConversionRateWei(uint256 usdAmount) public view returns(uint256){
+    function getConversionRateWei(
+        uint256 usdAmount
+    ) public view returns (uint256) {
         uint256 ethPrice = getConversionRate(1);
-        uint256 amountInWei = (usdAmount/ethPrice) * 1e18;
+        uint256 amountInWei = (usdAmount / ethPrice) * 1e18;
         return amountInWei;
     }
-
 }

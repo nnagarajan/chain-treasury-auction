@@ -90,3 +90,4 @@ package-lock.json
 contracts/Lock.sol
 ignition/deployments/*
 test/Lock.ts
+gas-report.txt
