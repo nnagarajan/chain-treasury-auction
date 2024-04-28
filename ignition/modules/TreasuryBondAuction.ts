@@ -30,8 +30,9 @@ const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
     mockV3AggregatorContract,
   ]);
 
+  console.log("TreasuryBondAuctionModule Invoked for Contract Creation.. ");
+
   return { treasuryBondAuction };
 });
 
-console.log(TreasuryBondAuctionModule.results);
 export default TreasuryBondAuctionModule;

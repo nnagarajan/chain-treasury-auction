@@ -28,8 +28,7 @@ contract TreasuryBondAuction {
     address public auctioneer;
     uint public auctionEndTime;
     uint public minimumBid;
-    address public bondToken; // ERC20 bond token address
-    BondToken private newBond;
+    BondToken public newBond;
     uint public bondPrice; // Price of one bond in wei
     uint256 ETH_USD_PRICE = 3271;
     PriceConverter private priceConverter;
@@ -56,7 +55,6 @@ contract TreasuryBondAuction {
         auctionEndTime = block.timestamp + _auctionDuration;
         minimumBid = _minimumBid;
         newBond = new BondToken(_bondName, _bondName, _bondMaturityInYears, _bondTotalSupply);
-        bondToken = address(newBond);
         bondPrice = 1 ether; // default bond price
         priceConverter = new PriceConverter(AggregatorV3Interface(priceFeed));
     }
@@ -78,7 +76,6 @@ contract TreasuryBondAuction {
     // Function to place a bid with yield and notional parameters
     function placeBid(uint _yield, uint _notional) public payable {
         require(block.timestamp < auctionEndTime, "Auction has ended");
-
         fundsByBidder[msg.sender] = msg.value;
 
         require(
@@ -97,9 +94,9 @@ contract TreasuryBondAuction {
 
         console.log(
             string.concat(
-                "Bid amount in Wei",
+                "Bid amount in Wei ",
                 Strings.toString(ethValueOfNotional),
-                " transferred in Wei",
+                " transferred in Wei ",
                 Strings.toString(msg.value)
             )
         );
@@ -107,7 +104,7 @@ contract TreasuryBondAuction {
         require(
             msg.value > 0 && msg.value >= ethValueOfNotional,
             string.concat(
-                "Bid amount should be atleast",
+                "Bid amount should be atleast ",
                 Strings.toString(ethValueOfNotional),
                 " transferred ",
                 Strings.toString(msg.value)
@@ -139,7 +136,7 @@ contract TreasuryBondAuction {
                 currentAllocation = bids[i].notional;
                 console.log(
                     string.concat(
-                        "iter ",
+                        "Iteration ",
                         Strings.toString(i),
                         " currentAllocation ",
                         Strings.toString(currentAllocation),
@@ -206,7 +203,7 @@ contract TreasuryBondAuction {
                 emit Withdrawal(winningBids[i].bid.bidder, settlementAmount);
             }
             // Transfer bonds
-            BondToken(bondToken).transfer(winningBids[i].bid.bidder, winningBids[i].qty);
+            newBond.transfer(winningBids[i].bid.bidder, winningBids[i].qty);
         }
 
         //Return bid amount to losing bidders
@@ -238,5 +235,13 @@ contract TreasuryBondAuction {
             totalReceived = totalReceived + bids[i].notional;
         }
         return totalReceived;
+    }
+
+    function createdBondToken() public view returns (BondToken) {
+        return newBond;
+    }
+
+    function addressCreatedBondToken() public view returns (address) {
+        return address(newBond);
     }
 }

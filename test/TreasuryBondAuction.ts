@@ -3,6 +3,7 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 import TreasuryBondAuction from "../ignition/modules/TreasuryBondAuction";
+import { BondToken } from "../typechain-types";
 
 describe("TreasuryBondAuction", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -60,19 +61,28 @@ describe("TreasuryBondAuction", function () {
 
       expect(await treasuryBondAuction.totalBidsReceived()).to.equal(4);
 
+      const createdBondToken: BondToken = (await hre.ethers.getContractFactory("BondToken")).attach(
+        await treasuryBondAuction.createdBondToken()
+      );
+
+      expect(await createdBondToken.findBalance(treasuryBondAuction.getAddress())).to.equal(3);
+
       expect(await hre.ethers.provider.getBalance(treasuryBondAuction)).to.equal((0.0005 + 0.001 + 0.0005) * 1e18);
 
       console.log("Contract Balance: " + (await hre.ethers.provider.getBalance(treasuryBondAuction)));
       console.log("Bank 1 Balance: " + (await hre.ethers.provider.getBalance(otherAccount1)));
       console.log("Bank 2 Balance: " + (await hre.ethers.provider.getBalance(otherAccount2)));
       console.log("Bank 3 Balance: " + (await hre.ethers.provider.getBalance(otherAccount3)));
-
-      await treasuryBondAuction.endAuction();
+      await treasuryBondAuction.connect(tokenOwner).endAuction();
 
       console.log("Contract Balance: " + (await hre.ethers.provider.getBalance(treasuryBondAuction)));
       console.log("Bank 1 Balance: " + (await hre.ethers.provider.getBalance(otherAccount1)));
       console.log("Bank 2 Balance: " + (await hre.ethers.provider.getBalance(otherAccount2)));
       console.log("Bank 3 Balance: " + (await hre.ethers.provider.getBalance(otherAccount3)));
+
+      expect(await createdBondToken.findBalance(otherAccount1)).to.equal(1);
+      expect(await createdBondToken.findBalance(otherAccount2)).to.equal(2);
+      expect(await createdBondToken.findBalance(treasuryBondAuction.getAddress())).to.equal(0);
     });
   });
 });

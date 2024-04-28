@@ -21,6 +21,7 @@ contract BondToken is IERC20 {
     uint256 public totalSupply;
     uint256 public couponRate;
     uint public maturityInYears;
+    address contractOwner;
 
     mapping(address => uint256) private balances;
     mapping(address => mapping(address => uint256)) private allowed;
@@ -32,11 +33,34 @@ contract BondToken is IERC20 {
         decimals = 18; // Assuming standard 18 decimal places for ERC20 tokens
         totalSupply = _totalSupply;
         balances[msg.sender] = _totalSupply;
+        console.log(string.concat("Token Balance: ", Strings.toString(balances[msg.sender])));
+        contractOwner = msg.sender;
+    }
+
+    function findBalance(address _account) public view returns (uint256) {
+        return balances[_account];
     }
 
     function transfer(address recipient, uint256 amount) external returns (bool) {
+        console.log(
+            string.concat(
+                "ERC20: transfer amount ",
+                Strings.toString(amount),
+                " balance ",
+                Strings.toString(balances[contractOwner])
+            )
+        );
+
         require(recipient != address(0), "ERC20: transfer to the zero address");
-        require(amount <= balances[msg.sender], "ERC20: transfer amount exceeds balance");
+        require(
+            amount <= balances[msg.sender],
+            string.concat(
+                "ERC20: transfer amount ",
+                Strings.toString(amount),
+                " exceeds balance ",
+                Strings.toString(balances[msg.sender])
+            )
+        );
 
         balances[msg.sender] -= amount;
         balances[recipient] += amount;
