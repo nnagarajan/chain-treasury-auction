@@ -10,6 +10,7 @@ const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
   const bondName = m.getParameter("_bondName", "TREAS1");
   const bondTotalSupply = m.getParameter("_bondTotalSupply", 3);
   const bondMaturityInYears = m.getParameter("_bondMaturityInYears", 10);
+  const ethFactor = m.getParameter("_ethFactor", 100);
   const chainId = hre.network.config.chainId;
 
   const DECIMALS = "8";
@@ -28,6 +29,7 @@ const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
     bondTotalSupply,
     bondMaturityInYears,
     mockV3AggregatorContract,
+    ethFactor,
   ]);
 
   console.log("TreasuryBondAuctionModule Invoked for Contract Creation.. ");

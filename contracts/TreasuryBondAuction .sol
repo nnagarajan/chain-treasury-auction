@@ -25,13 +25,16 @@ contract TreasuryBondAuction {
         uint256 settlementAmount;
     }
 
-    address public auctioneer;
     uint public auctionEndTime;
     uint public minimumBid;
-    BondToken public newBond;
+    uint private ethFactor;
     uint public bondPrice; // Price of one bond in wei
-    uint256 ETH_USD_PRICE = 3271;
+
+    address public auctioneer;
+
     PriceConverter private priceConverter;
+    BondToken public newBond;
+
     mapping(address => uint256) public fundsByBidder;
 
     Bid[] private bids;
@@ -49,14 +52,16 @@ contract TreasuryBondAuction {
         string memory _bondName,
         uint256 _bondTotalSupply,
         uint256 _bondMaturityInYears,
-        address priceFeed
+        address _priceFeed,
+        uint _ethFactor
     ) {
         auctioneer = msg.sender;
         auctionEndTime = block.timestamp + _auctionDuration;
         minimumBid = _minimumBid;
         newBond = new BondToken(_bondName, _bondName, _bondMaturityInYears, _bondTotalSupply);
         bondPrice = 1 ether; // default bond price
-        priceConverter = new PriceConverter(AggregatorV3Interface(priceFeed));
+        priceConverter = new PriceConverter(AggregatorV3Interface(_priceFeed));
+        ethFactor = _ethFactor;
     }
 
     // Modifier to restrict access to the auctioneer
@@ -76,8 +81,7 @@ contract TreasuryBondAuction {
     // Function to place a bid with yield and notional parameters
     function placeBid(uint _yield, uint _notional) public payable {
         require(block.timestamp < auctionEndTime, "Auction has ended");
-        fundsByBidder[msg.sender] = msg.value;
-
+        require(fundsByBidder[msg.sender] == 0, "You have already bid");
         require(
             _notional >= minimumBid,
             string.concat(
@@ -90,7 +94,7 @@ contract TreasuryBondAuction {
 
         require(msg.sender != auctioneer, "Only non-auctioneer can perform this action");
 
-        uint256 ethValueOfNotional = priceConverter.getConversionRateWei(_notional * 150) / 100;
+        uint256 ethValueOfNotional = priceConverter.getConversionRateWei(_notional * 150) / ethFactor;
 
         console.log(
             string.concat(
@@ -111,6 +115,8 @@ contract TreasuryBondAuction {
             )
         );
 
+        // store the funds received
+        fundsByBidder[msg.sender] = msg.value;
         // Store the bid
         bids.push(Bid({bidder: msg.sender, yield: _yield, notional: _notional, withdrawn: false}));
 
@@ -186,8 +192,7 @@ contract TreasuryBondAuction {
             if (!winningBids[i].bid.withdrawn) {
                 uint256 settlementAmount = priceConverter.getConversionRateWei(
                     winningBids[i].qty * winningBids[i].price
-                ) / 100;
-                //uint256 settlementAmount = (winningBids[i].qty * winningBids[i].price);
+                ) / ethFactor;
                 winningBids[i].settlementAmount = settlementAmount;
                 console.log(
                     string.concat(
@@ -243,5 +248,14 @@ contract TreasuryBondAuction {
 
     function addressCreatedBondToken() public view returns (address) {
         return address(newBond);
+    }
+
+    function cancelBidAndRefundAll() public onlyAuctioneer {
+        // Transfer Money to Bidders
+        for (uint i = 0; i < bids.length; i++) {
+            payable(bids[i].bidder).transfer(fundsByBidder[bids[i].bidder]);
+        }
+        // End Bid
+        auctionEndTime = block.timestamp;
     }
 }
