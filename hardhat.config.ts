@@ -10,6 +10,8 @@ import "@nomicfoundation/hardhat-ethers";
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || "";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const PRIVATE_KEY_2 = process.env.PRIVATE_KEY_2 || "";
+const PRIVATE_KEY_3 = process.env.PRIVATE_KEY_3 || "";
+const PRIVATE_KEY_4 = process.env.PRIVATE_KEY_4 || "";
 const MNEMONIC = process.env.MNEMONIC || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "";
@@ -26,7 +28,7 @@ const config: HardhatUserConfig = {
     },
     sepolia: {
       url: SEPOLIA_RPC_URL,
-      accounts: [PRIVATE_KEY, PRIVATE_KEY_2],
+      accounts: [PRIVATE_KEY, PRIVATE_KEY_2, PRIVATE_KEY_3, PRIVATE_KEY_4],
       chainId: 11155111,
     },
   },

@@ -11,7 +11,7 @@ contract TreasuryBondAuction {
     // Structure to represent a bid
     struct Bid {
         address bidder;
-        uint yield; // Yield of the bid
+        uint256 yield; // Yield of the bid
         uint256 notional; // Notional amount of the bid
         bool withdrawn; // flag indicating if the bid has been withdrawn
     }
@@ -79,8 +79,9 @@ contract TreasuryBondAuction {
     }
 
     // Function to place a bid with yield and notional parameters
-    function placeBid(uint _yield, uint _notional) public payable {
+    function placeBid(uint256 _yield, uint _notional) public payable {
         require(block.timestamp < auctionEndTime, "Auction has ended");
+        require(_yield > 100 && _yield < 999, "Yield must be between 100 and 999");
         require(fundsByBidder[msg.sender] == 0, "You have already bid");
         require(
             _notional >= minimumBid,
@@ -199,11 +200,13 @@ contract TreasuryBondAuction {
                         "SettlementAmount at winnerIndex : ",
                         Strings.toString(i),
                         " settlementAmount ",
-                        Strings.toString(settlementAmount)
+                        Strings.toString(settlementAmount),
+                        " fundsDeposited ",
+                        Strings.toString(fundsByBidder[winningBids[i].bid.bidder])
                     )
                 );
                 uint256 extraAmountInWei = fundsByBidder[winningBids[i].bid.bidder] - settlementAmount;
-                if (extraAmountInWei > 0) payable(winningBids[i].bid.bidder).transfer(extraAmountInWei);
+                if (extraAmountInWei > 0) payable(winningBids[i].bid.bidder).transfer(uint256(extraAmountInWei));
                 bids[i].withdrawn = true;
                 emit Withdrawal(winningBids[i].bid.bidder, settlementAmount);
             }
@@ -250,8 +253,8 @@ contract TreasuryBondAuction {
         return address(newBond);
     }
 
-    function cancelBidAndRefundAll() public onlyAuctioneer {
-        // Transfer Money to Bidders
+    function cancelAndReleaseAllFunds() public onlyAuctioneer {
+        // Transfer Money back to Bidders
         for (uint i = 0; i < bids.length; i++) {
             payable(bids[i].bidder).transfer(fundsByBidder[bids[i].bidder]);
         }

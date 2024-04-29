@@ -8,9 +8,9 @@ const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
   const auctionDuration = m.getParameter("_auctionDuration", AUCTION_DURATION);
   const minimumBid = m.getParameter("_minimumBid", 1);
   const bondName = m.getParameter("_bondName", "TREAS1");
-  const bondTotalSupply = m.getParameter("_bondTotalSupply", 3);
+  const bondTotalSupply = m.getParameter("_bondTotalSupply", 50);
   const bondMaturityInYears = m.getParameter("_bondMaturityInYears", 10);
-  const ethFactor = m.getParameter("_ethFactor", 100);
+  const ethFactor = m.getParameter("_ethFactor", 1000000);
   const chainId = hre.network.config.chainId;
 
   const DECIMALS = "8";

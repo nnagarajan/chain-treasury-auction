@@ -2,7 +2,7 @@ import { ethers, getNamedAccounts, deployments } from "hardhat"
 
 async function main() {
   const [tokenOwner] = await ethers.getSigners(); 
-  const treasuryBondAuction =  await ethers.getContractAt("TreasuryBondAuction","0x610178dA211FEF7D417bC0e6FeD39F05609AD788")    
+  const treasuryBondAuction =  await ethers.getContractAt("TreasuryBondAuction","0xC358dE3159E8f3f914bEcb341Ae0A3c2FC97Da52")    
   await treasuryBondAuction.connect(tokenOwner).endAuction();  
   
 }

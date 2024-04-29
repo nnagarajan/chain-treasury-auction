@@ -113,10 +113,32 @@ contract BondToken is IERC20 {
         emit Approval(owner, spender, amount);
     }
 
-    function derivedPrice(uint bidYield) external view returns (uint) {
-        uint256 r = (100 + bidYield) ** maturityInYears;
-        uint derivedBondPrice = ((couponRate * 100) / bidYield) * 100 * (10000 - (1e24 / r)) + 1e28 / r;
-        derivedBondPrice = derivedBondPrice / 1e6;
+    // function derivedPrice(uint bidYield) external view returns (uint) {
+    //     uint256 r = (100 + bidYield) ** maturityInYears;
+    //     uint derivedBondPrice = ((couponRate * 100) / bidYield) * 100 * (10000 - (1e24 / r)) + 1e28 / r;
+    //     derivedBondPrice = derivedBondPrice / 1e6;
+    //     console.log(string.concat("Derived Bond Price ", Strings.toString(derivedBondPrice)));
+    //     return derivedBondPrice;
+    // }
+
+    function derivedPrice(uint256 bidYield) external view returns (uint) {
+        console.log(string.concat("bidYield ", Strings.toString(bidYield)));
+        console.log(string.concat("maturityInYears ", Strings.toString(maturityInYears)));
+        uint256 r = (10000 + bidYield) ** maturityInYears;
+        console.log(string.concat("r ", Strings.toString(r)));
+        console.log(string.concat("1e44/r ", Strings.toString(1e46 / r)));
+        console.log(string.concat("(10000 - (1e44 / r)) ", Strings.toString((1000000 - (1e46 / r)))));
+        console.log(
+            string.concat(
+                "((couponRate * 100) / bidYield) * 100 ",
+                Strings.toString((((couponRate * 10000) / (bidYield))))
+            )
+        );
+        uint256 a = (((couponRate * 10000) / (bidYield))) * 100 * (1000000 - (1e46 / r));
+        console.log(string.concat("a ", Strings.toString(a)));
+        uint256 b = 1e52 / r;
+        console.log(string.concat("b ", Strings.toString(b)));
+        uint256 derivedBondPrice = (a + b) / 1e8;
         console.log(string.concat("Derived Bond Price ", Strings.toString(derivedBondPrice)));
         return derivedBondPrice;
     }
