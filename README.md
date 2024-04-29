@@ -1,15 +1,20 @@
 # Treasry Bond Auction Project
 
+Contract Hash: 0x288F6e238BCED1638201f3eaBF0e2FB311cE50CF
+
 ```shell
 npx hardhat help
 npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/TreasuryBondAuction.ts --network localhost --reset
-npx hardhat ignition deploy ./ignition/modules/TreasuryBondAuction.ts --network sepolia --reset --verify
+
 hh run scripts/PlaceBid.ts --network localhost
+
+npx hardhat ignition deploy ./ignition/modules/TreasuryBondAuction.ts --network sepolia --reset --verify
 hh run scripts/PlaceBid.ts --network sepolia
-hh run scripts/EndAuction.ts --network localhost
+hh run scripts/EndAuction.ts --network sepolia
+hh run scripts/CancelAuction.ts --network sepolia
 ```
 
 ```r
