@@ -1,9 +1,10 @@
 # Treasry Bond Auction Project
 
-Contract Hash: 0x288F6e238BCED1638201f3eaBF0e2FB311cE50CF
-
 Contract Hash: 0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a
 https://sepolia.etherscan.io/address/0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a
+
+Contract Hash: 0x82D815b5b245c53aDab9F80dA9cF14F3058399d8
+https://sepolia.etherscan.io/address/0x82D815b5b245c53aDab9F80dA9cF14F3058399d8
 
 ```shell
 npx hardhat help

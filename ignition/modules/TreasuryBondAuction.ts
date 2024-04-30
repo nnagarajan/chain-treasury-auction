@@ -7,7 +7,7 @@ const AUCTION_DURATION = 1000;
 const TreasuryBondAuctionModule = buildModule("TreasuryBondAuction", (m) => {
   const auctionDuration = m.getParameter("_auctionDuration", AUCTION_DURATION);
   const minimumBid = m.getParameter("_minimumBid", 1);
-  const bondName = m.getParameter("_bondName", "TREAS2");
+  const bondName = m.getParameter("_bondName", "TSRY043024");
   const bondTotalSupply = m.getParameter("_bondTotalSupply", 50);
   const bondMaturityInYears = m.getParameter("_bondMaturityInYears", 10);
   const ethFactor = m.getParameter("_ethFactor", 1000000);

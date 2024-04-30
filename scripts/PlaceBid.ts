@@ -4,7 +4,7 @@ async function main() {
   const [tokenOwner, otherAccount1, otherAccount2, otherAccount3] = await ethers.getSigners();
   const treasuryBondAuction = await ethers.getContractAt(
     "TreasuryBondAuction",
-    "0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a",
+    "0x82D815b5b245c53aDab9F80dA9cF14F3058399d8",
   );
 
   await treasuryBondAuction

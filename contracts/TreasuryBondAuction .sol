@@ -44,6 +44,8 @@ contract TreasuryBondAuction {
     event BidPlaced(address indexed bidder, uint yield, uint notional, uint amount);
     event AuctionEnded(Winner[] winners);
     event Withdrawal(address indexed bidder, uint amount);
+    event BondTransfer(address indexed bidder, uint qty);
+    event LoosingBid(Bid bid);
 
     // Constructor to initialize the auction and create the bond token
     constructor(
@@ -209,15 +211,18 @@ contract TreasuryBondAuction {
                 if (extraAmountInWei > 0) payable(winningBids[i].bid.bidder).transfer(uint256(extraAmountInWei));
                 bids[i].withdrawn = true;
                 emit Withdrawal(winningBids[i].bid.bidder, settlementAmount);
-            }
-            // Transfer bonds
-            newBond.transfer(winningBids[i].bid.bidder, winningBids[i].qty);
+                // Transfer bonds
+                newBond.transfer(winningBids[i].bid.bidder, winningBids[i].qty);
+                emit BondTransfer(winningBids[i].bid.bidder, winningBids[i].qty);
+            }            
         }
 
         //Return bid amount to losing bidders
         for (uint i = 0; i < bids.length; i++) {
             if (!bids[i].withdrawn) {
                 payable(bids[i].bidder).transfer(fundsByBidder[bids[i].bidder]);
+                emit LoosingBid(bids[i]);
+                emit Withdrawal(bids[i].bidder, fundsByBidder[bids[i].bidder]);                
             }
         }
 
