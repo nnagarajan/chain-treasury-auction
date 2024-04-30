@@ -2,6 +2,9 @@
 
 Contract Hash: 0x288F6e238BCED1638201f3eaBF0e2FB311cE50CF
 
+Contract Hash: 0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a
+https://sepolia.etherscan.io/address/0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a
+
 ```shell
 npx hardhat help
 npx hardhat test

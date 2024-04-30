@@ -30,7 +30,7 @@ contract BondToken is IERC20 {
         name = _name;
         symbol = _symbol;
         maturityInYears = _maturityInYears;
-        decimals = 18; // Assuming standard 18 decimal places for ERC20 tokens
+        decimals = 0; // Assuming standard 18 decimal places for ERC20 tokens
         totalSupply = _totalSupply;
         balances[msg.sender] = _totalSupply;
         console.log(string.concat("Token Balance: ", Strings.toString(balances[msg.sender])));

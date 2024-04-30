@@ -4,7 +4,7 @@ async function main() {
   const [tokenOwner] = await ethers.getSigners();
   const treasuryBondAuction = await ethers.getContractAt(
     "TreasuryBondAuction",
-    "0x288F6e238BCED1638201f3eaBF0e2FB311cE50CF",
+    "0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a",
   );
   await treasuryBondAuction.connect(tokenOwner).endAuction();
 }
