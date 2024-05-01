@@ -91,7 +91,7 @@ derivedPrice<-function(bidYield,maturityInYears,couponRate){
 
 ## Limitations
 
-- Throuhput of 5 TPS
+- Throuhput of 12-15 TPS
 - Only one bid allowed per bidder
 
 ## Challenges
