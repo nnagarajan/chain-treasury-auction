@@ -17,7 +17,7 @@ Treasury conducts note auctions in a "single-price" format i.e, same coupon rate
 
 ## Auction on chain
 
-![alt text](markdown/image-5.png)
+!["Fixture"](markdown/image-5.png "Fixture")
 
 - Build the auction infrasture on the chain
 
@@ -84,6 +84,23 @@ derivedPrice<-function(bidYield,maturityInYears,couponRate){
   return( a + b );
 }
 ```
+
+## Challenges
+
+### On chain
+
+- No floating point data types
+- Testing on sepolia needs ETH tokens. Faucets limit the drop to 0.01 - 0.5 ETH per day.
+
+### Hardhat
+
+- No etherscan like GUI to visulize the block. Ganache and Truffle project being deprecated.
+- Need to pass contract address to run scripts
+- Unable to retreive contract address after ignition script finishes
+- Local hardhat network cannot execute the ignition when there are multiple dependent contracts in one ignition file
+- When a withdrawal is initiated within the contract method, the To address is the contract address instead of Contract Owner.
+- BondToken when created seperately, the owner is the contract creator and during the Auction End the trasfer doesn't complete as the balances are held in contract address the transfer doesn't complete as the
+  ` balances[msg.sender] = _totalSupply;`
 
 ## Conclusion
 
