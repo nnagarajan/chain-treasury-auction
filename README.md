@@ -15,27 +15,34 @@ Treasury conducts note auctions in a "single-price" format i.e, same coupon rate
 
 ## Settlement Cycles
 
-## Auction on chain
+Treasury issues the security T+5 from the auction date.
+
+## Auction and settlement on chain
+
+### Test Fixture
 
 !["Fixture"](markdown/image-5.png "Fixture")
 
 - Build the auction infrasture on the chain
 
-- Token TSRY043024
+### Token TSRY043024
 
 ![alt text](markdown/image-1.png)
 
-- Bond Auction Contract
+### Bond Auction Contract
 
 ![alt text](markdown/image-2.png)
 
+### Internal transactions
+
 ![alt text](markdown/image-3.png)
+
+### Token Transfers
 
 ![alt text](markdown/image-4.png)
 
-Treasury issues the security T+5 from the auction date.
-
 Contract Hash: 0x82D815b5b245c53aDab9F80dA9cF14F3058399d8
+
 https://sepolia.etherscan.io/address/0x82D815b5b245c53aDab9F80dA9cF14F3058399d8
 
 ```shell
