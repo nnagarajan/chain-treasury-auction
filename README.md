@@ -121,3 +121,4 @@ References:
 - https://github.com/brynbellomy/solidity-auction/blob/master/contracts/Auction.sol
 - https://www.youtube.com/watch?v=LlgajyUiLBs
 - https://ethereum.stackexchange.com/questions/83785/what-fixed-or-float-point-math-libraries-are-available-in-solidity
+- https://www.nasdaq.com/articles/time-relative%3A-where-trade-speed-matters-and-where-it-doesnt-2019-05-30
