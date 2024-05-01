@@ -1,4 +1,4 @@
-# Treasry Bond Auction on Chain
+# Treasry Bond Auction dApp
 
 ## Abstract:
 
