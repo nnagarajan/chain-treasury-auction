@@ -1,4 +1,4 @@
-# Treasry Bond Auction dApp
+# Treasury Bond Auction dApp
 
 ## Abstract:
 
