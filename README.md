@@ -11,7 +11,7 @@ The Treasury auction process begins with an announcement by the Treasury that it
 
 Auction market participant can submit either (a) one or more competetive bids, each specifying a minimum yeild at which the participant is prepared to by a specified quantity of notes or (b) a single noncompetitive bid, specifying the quantity of securities that it is prepared to buy at whatever price is paid by successful competitive bidders.
 
-Treasury conducts note auctions in a "single-price" format i.e, same coupon rate for all accepted bids . After the close of bidding, it subtracts the noncompetitive 2bids from the total quantity of securities offered and then accepts competitive bids,in order of increasing yield,until it has exhausted the offering. The highest accepted yield is called the “stop.” Bids specifying yields below the stop are filled in full, bids above the stop are rejected, and bids at the stop are filled on a pro rata basis.6 All auction awards are made at a single price, computed from the yield at which the auction stopped.
+Treasury conducts note auctions in a "single-price" format i.e, same coupon rate for all accepted bids . After the close of bidding, it subtracts the noncompetitive 2bids from the total quantity of securities offered and then accepts competitive bids,in order of increasing yield,until it has exhausted the offering. The highest accepted yield is called the “stop.” Bids specifying yields below the stop are filled in full, bids above the stop are rejected, and bids at the stop are filled on a pro rata basis. All auction awards are made at a single price, computed from the yield at which the auction stopped.
 
 ## Settlement Cycles
 
@@ -34,9 +34,6 @@ Treasury conducts note auctions in a "single-price" format i.e, same coupon rate
 ![alt text](markdown/image-4.png)
 
 Treasury issues the security T+5 from the auction date.
-
-Contract Hash: 0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a
-https://sepolia.etherscan.io/address/0xEFE2eC15ed01ffECb037792B3601F5645ae89c9a
 
 Contract Hash: 0x82D815b5b245c53aDab9F80dA9cF14F3058399d8
 https://sepolia.etherscan.io/address/0x82D815b5b245c53aDab9F80dA9cF14F3058399d8
