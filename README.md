@@ -17,7 +17,7 @@ Treasury conducts note auctions in a "single-price" format i.e, same coupon rate
 
 ## Auction on chain
 
-![alt text](image.png)
+![alt text](markdown/image-5.png)
 
 - Build the auction infrasture on the chain
 
