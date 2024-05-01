@@ -115,3 +115,4 @@ References:
 - https://github.com/PatrickAlphaC/hardhat-fund-me-fcc
 - https://github.com/brynbellomy/solidity-auction/blob/master/contracts/Auction.sol
 - https://www.youtube.com/watch?v=LlgajyUiLBs
+- https://ethereum.stackexchange.com/questions/83785/what-fixed-or-float-point-math-libraries-are-available-in-solidity
