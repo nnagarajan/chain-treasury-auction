@@ -7,12 +7,6 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
-// // ERC20 Interface
-// interface IERC20 {
-//     function transfer(address recipient, uint256 amount) external returns (bool);
-//     function balanceOf(address account) external view returns (uint256);
-// }
-
 // Bond Token Contract
 contract BondToken is IERC20 {
     string public name;
