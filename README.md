@@ -2,6 +2,8 @@
 
 ## Abstract:
 
+The "Chain Treasury Auction" project is a decentralized application (dApp) designed to facilitate Treasury Bond Auctions on the blockchain. Utilizing smart contracts, this system ensures transparent and efficient auction processes for Treasury bonds, automating the settlement cycles and enhancing security. This project addresses the limitations of traditional bond auctions by leveraging blockchain technology to provide a decentralized, tamper-proof, and publicly verifiable platform.
+
 - Treasury uses computer application called TAAPS (Treasury Automated Auction Processing System)
 - Market participants use TAPS to place their bids, at the end of auction the results are posted on Treasury Department Bureau of public debt website.
 
